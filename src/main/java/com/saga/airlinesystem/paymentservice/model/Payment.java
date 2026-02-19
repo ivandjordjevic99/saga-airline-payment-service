@@ -16,8 +16,8 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name= "reservation_id", nullable = false)
-    private UUID reservationId;
+    @Column(name= "ticket_order_id", nullable = false)
+    private UUID ticketOrderId;
 
     @Column(name = "payment_resolution", nullable = false)
     @Enumerated(EnumType.STRING)

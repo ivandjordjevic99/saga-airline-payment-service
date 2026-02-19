@@ -2,14 +2,14 @@ package com.saga.airlinesystem.paymentservice.service.impl;
 
 import com.saga.airlinesystem.paymentservice.dto.PaymentRequestDto;
 import com.saga.airlinesystem.paymentservice.dto.PaymentResponseDto;
-import com.saga.airlinesystem.paymentservice.dto.ReservationUpdateRequest;
-import com.saga.airlinesystem.paymentservice.dto.ReservationUpdateResponse;
+import com.saga.airlinesystem.paymentservice.dto.TicketOrderUpdateRequest;
+import com.saga.airlinesystem.paymentservice.dto.TicketOrderUpdateResponse;
 import com.saga.airlinesystem.paymentservice.exceptions.customexceptions.PaymentFailedException;
 import com.saga.airlinesystem.paymentservice.model.Payment;
 import com.saga.airlinesystem.paymentservice.model.PaymentResolution;
 import com.saga.airlinesystem.paymentservice.repository.PaymentRepository;
 import com.saga.airlinesystem.paymentservice.service.PaymentService;
-import com.saga.airlinesystem.paymentservice.service.ReservationClient;
+import com.saga.airlinesystem.paymentservice.service.AirlineTicketServiceClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,24 +22,23 @@ import java.util.concurrent.ThreadLocalRandom;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
-    private final ReservationClient reservationClient;
+    private final AirlineTicketServiceClient airlineTicketServiceClient;
 
     @Override
     @Transactional
     public PaymentResponseDto createPayment(PaymentRequestDto paymentRequestDto) {
         boolean successful = isPaymentSuccessful();
         Payment payment = new Payment();
-        payment.setReservationId(paymentRequestDto.getReservationId());
+        payment.setTicketOrderId(paymentRequestDto.getTicketOrderId());
         if (successful) {
-            ReservationUpdateRequest reservationUpdateRequest = new ReservationUpdateRequest(
-                    paymentRequestDto.getReservationId().toString());
-            ResponseEntity<ReservationUpdateResponse> response = reservationClient.sendUpdateToReservationService(
-                    reservationUpdateRequest);
+            TicketOrderUpdateRequest ticketOrderUpdateRequest = new TicketOrderUpdateRequest(
+                    paymentRequestDto.getTicketOrderId().toString());
+            ResponseEntity<TicketOrderUpdateResponse> response = airlineTicketServiceClient.sendUpdateToAirlineTicketService(
+                    ticketOrderUpdateRequest);
             if(response != null && response.getStatusCode().is2xxSuccessful()) {
                 payment.setPaymentResolution(PaymentResolution.PAYMENT_SUCCESSFUL);
             } else {
-                payment.setPaymentResolution(PaymentResolution.PAYMENT_FAILED_RESERVATION_SERVICE);
-                throw new PaymentFailedException("Payment failed on reservation service");
+                payment.setPaymentResolution(PaymentResolution.PAYMENT_FAILED_TICKET_SERVICE);
             }
         } else {
             payment.setPaymentResolution(PaymentResolution.PAYMENT_FAILED_PAYMENT_SERVICE);
@@ -56,9 +55,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     private PaymentResponseDto toDto(Payment payment) {
         PaymentResponseDto paymentResponseDto = new PaymentResponseDto();
-        paymentResponseDto.setReservationId(payment.getReservationId());
+        paymentResponseDto.setTicketOrderId(payment.getTicketOrderId());
         paymentResponseDto.setPaymentResolution(payment.getPaymentResolution());
-        paymentResponseDto.setId(payment.getId());
         return paymentResponseDto;
     }
 }

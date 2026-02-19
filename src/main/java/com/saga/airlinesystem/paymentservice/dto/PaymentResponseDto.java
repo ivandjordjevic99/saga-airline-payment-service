@@ -9,10 +9,8 @@ import java.util.UUID;
 @Data
 public class PaymentResponseDto {
 
-    private UUID id;
-
-    @JsonProperty("reservation_id")
-    private UUID reservationId;
+    @JsonProperty("ticket_order_id")
+    private UUID ticketOrderId;
 
     @JsonProperty("payment_resolution")
     private PaymentResolution paymentResolution;

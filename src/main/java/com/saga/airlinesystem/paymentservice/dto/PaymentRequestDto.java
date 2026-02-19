@@ -8,6 +8,6 @@ import java.util.UUID;
 @Data
 public class PaymentRequestDto {
 
-    @JsonProperty("reservation_id")
-    private UUID reservationId;
+    @JsonProperty("ticket_order_id")
+    private UUID ticketOrderId;
 }
